@@ -57,17 +57,20 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Portfolio — Selected Work" },
+      { title: "NARDO — UX/UI & Graphic Designer" },
       {
         name: "description",
-        content: "A minimal portfolio of selected design and engineering projects.",
+        content:
+          "Lenhard Pedro Malana (NARDO) — Philippines-based UX/UI & graphic designer crafting user-centered digital experiences.",
       },
-      { property: "og:title", content: "Portfolio — Selected Work" },
+      { property: "og:title", content: "NARDO — UX/UI & Graphic Designer" },
       {
         property: "og:description",
-        content: "A minimal portfolio of selected design and engineering projects.",
+        content:
+          "Lenhard Pedro Malana (NARDO) — Philippines-based UX/UI & graphic designer crafting user-centered digital experiences.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "NARDO" },
     ],
     links: [{ rel: "stylesheet", href: appCss }],
   }),
