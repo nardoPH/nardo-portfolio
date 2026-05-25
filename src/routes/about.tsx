@@ -1,57 +1,85 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowUpRight, FileText } from "lucide-react";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "About — Portfolio" },
-      { name: "description", content: "About the designer behind the portfolio." },
-      { property: "og:title", content: "About — Portfolio" },
-      { property: "og:description", content: "About the designer behind the portfolio." },
+      { title: "About — NARDO" },
+      {
+        name: "description",
+        content:
+          "Lenhard Pedro Malana — freelance UX/UI Designer based in the Philippines with 3+ years of experience.",
+      },
+      { property: "og:title", content: "About — NARDO" },
+      {
+        property: "og:description",
+        content:
+          "Lenhard Pedro Malana — freelance UX/UI Designer based in the Philippines with 3+ years of experience.",
+      },
     ],
   }),
   component: About,
 });
 
-const stack = [
-  "React", "TypeScript", "Next.js", "Tailwind", "Figma", "PostgreSQL",
-  "Node", "Motion", "Vite", "Storybook",
+const skills = [
+  "Figma (Advanced)",
+  "UI Design Systems",
+  "Wireframing & Prototyping",
+  "UX Research Basics",
+  "Responsive Web Design",
+  "User Flow & IA",
+  "Adobe Photoshop",
+  "Adobe Illustrator",
 ];
 
 function About() {
   return (
     <div className="container-prose pt-20 pb-24 md:pt-32">
-      <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground">About</p>
-      <h1 className="font-serif mt-4 max-w-3xl text-4xl leading-tight md:text-6xl">
-        I help small teams ship products that feel inevitable.
+      <p className="text-sm uppercase tracking-[0.25em] text-muted-foreground">About</p>
+      <h1 className="font-serif mt-4 max-w-3xl text-4xl leading-[1.05] md:text-6xl">
+        I'm Lenhard Pedro Malana <span className="text-muted-foreground">— a freelance UX/UI designer from the Philippines.</span>
       </h1>
 
       <div className="mt-16 grid gap-16 md:grid-cols-12">
         <div className="md:col-span-7 space-y-6 text-base leading-relaxed text-muted-foreground md:text-lg">
           <p>
-            For the last decade I've worked at the intersection of design and engineering — first as
-            a designer who could code, now as an engineer who still cares deeply about how things
-            look and feel.
+            I'm a freelance UX/UI Designer with <strong className="text-foreground">3 years of experience</strong>,
+            recently graduated with a BS in Information Technology (July 2025).
           </p>
           <p>
-            My work tends to be quiet. Restrained typography, generous whitespace, fewer interface
-            elements than you'd expect. I believe the best interfaces get out of the way and let
-            the work happen.
+            I focus on user-centered design, wireframing, prototyping, and research to create
+            engaging digital experiences. My work spans AI SaaS platforms, mobile apps, web games,
+            pitch decks, and brand systems for clients across five countries.
           </p>
           <p>
-            When I'm not at a keyboard, I'm usually reading something old, walking somewhere new,
-            or trying to make better coffee at home.
+            Check out my CV via the <em>My Resume</em> button, or get in touch if you'd like to
+            collaborate on something new.
           </p>
+          <div className="flex flex-wrap gap-3 pt-2">
+            <a
+              href="#"
+              className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm text-foreground transition-colors hover:bg-muted"
+            >
+              <FileText className="h-3.5 w-3.5" /> My Resume
+            </a>
+            <Link
+              to="/contact"
+              className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm text-primary-foreground transition-opacity hover:opacity-90"
+            >
+              Hire Me <ArrowUpRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
         </div>
 
         <aside className="md:col-span-5 space-y-10">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Currently</p>
-            <p className="mt-2 font-serif text-xl">Available for new work — Q3 2026</p>
+            <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">Currently</p>
+            <p className="mt-2 font-serif text-xl">Open to new projects — 2026</p>
           </div>
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Stack</p>
+            <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">Tech stack</p>
             <ul className="mt-3 flex flex-wrap gap-2">
-              {stack.map((s) => (
+              {skills.map((s) => (
                 <li
                   key={s}
                   className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground"
@@ -62,21 +90,15 @@ function About() {
             </ul>
           </div>
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Previously</p>
-            <ul className="mt-3 space-y-2 text-sm">
-              <li className="flex justify-between gap-4 border-b border-border/60 pb-2">
-                <span>Senior Designer, Studio Co.</span>
-                <span className="text-muted-foreground">'22 — '25</span>
-              </li>
-              <li className="flex justify-between gap-4 border-b border-border/60 pb-2">
-                <span>Product Engineer, Foundry</span>
-                <span className="text-muted-foreground">'19 — '22</span>
-              </li>
-              <li className="flex justify-between gap-4">
-                <span>Designer, Independent</span>
-                <span className="text-muted-foreground">'16 — '19</span>
-              </li>
-            </ul>
+            <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">Certification</p>
+            <div className="mt-3 rounded-lg border border-border bg-card p-5">
+              <p className="text-xs text-muted-foreground">October 2024</p>
+              <p className="font-serif mt-1 text-lg">Introduction to UI/UX Design</p>
+              <p className="mt-2 text-xs text-muted-foreground">
+                Issued by Hytec Power Inc. — strengthened foundations in UI design, UX
+                principles, wireframing, and design thinking.
+              </p>
+            </div>
           </div>
         </aside>
       </div>
