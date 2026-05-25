@@ -6,6 +6,7 @@ import { useTheme } from "./ThemeProvider";
 const nav = [
   { to: "/", label: "Home" },
   { to: "/about", label: "About" },
+  { to: "/services", label: "Services" },
   { to: "/projects", label: "Projects" },
   { to: "/contact", label: "Contact" },
 ] as const;
@@ -18,8 +19,8 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-md">
       <div className="container-prose flex h-16 items-center justify-between">
-        <Link to="/" className="font-serif text-xl tracking-tight">
-          Portfolio<span className="text-muted-foreground">.</span>
+        <Link to="/" className="font-serif text-xl tracking-[0.15em]">
+          NARDO
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
