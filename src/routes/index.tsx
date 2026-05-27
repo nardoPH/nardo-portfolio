@@ -55,10 +55,6 @@ const services = [
   },
 ];
 
-const techStack = [
-  "Figma", "Photoshop", "Illustrator", "Premiere", "After Effects",
-  "Adobe XD", "Canva", "Framer", "Notion", "Slack", "Trello", "Asana",
-];
 
 const promos = [
   { title: "Open for Commission", sub: "UX/UI Designer | Graphic Designer", note: "Open for Full-Time, Part-Time, And Commission" },
