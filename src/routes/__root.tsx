@@ -13,6 +13,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Toaster } from "@/components/ui/sonner";
+import { NardoAssistant } from "@/components/NardoAssistant";
 
 function NotFoundComponent() {
   return (
@@ -106,6 +107,7 @@ function RootComponent() {
           </main>
           <Footer />
         </div>
+        <NardoAssistant />
         <Toaster />
       </ThemeProvider>
     </QueryClientProvider>
