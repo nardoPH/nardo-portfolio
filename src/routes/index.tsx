@@ -8,6 +8,7 @@ import sample2k25 from "@/assets/figma/sample-2k25.png";
 import sampleRodel from "@/assets/figma/sample-rodel.png";
 import sampleRj8 from "@/assets/figma/sample-rj8.png";
 import sampleLaptop from "@/assets/figma/sample-laptop.png";
+import { TechStack } from "@/components/TechStack";
 
 export const Route = createFileRoute("/")({
   head: () => ({

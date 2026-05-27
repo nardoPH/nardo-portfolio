@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowUpRight, FileText, Mail, Instagram, Linkedin, MessageCircle } from "lucide-react";
 import portraitGrad from "@/assets/figma/portrait-grad.png";
+import { TechStack } from "@/components/TechStack";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -22,10 +23,6 @@ export const Route = createFileRoute("/about")({
   component: About,
 });
 
-const techStack = [
-  "Figma", "Photoshop", "Illustrator", "Premiere", "After Effects",
-  "Adobe XD", "Canva", "Framer", "Notion", "Slack", "Trello", "Asana",
-];
 
 const skills = [
   "Figma (Advanced)",
