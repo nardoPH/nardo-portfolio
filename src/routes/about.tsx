@@ -97,21 +97,9 @@ function About() {
 
         {/* Tech stacks */}
         <div className="mt-24">
-          <p className="text-center text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
-            Tech Stacks
-          </p>
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-3 md:gap-4">
-            {techStack.map((t) => (
-              <div
-                key={t}
-                className="grid h-14 w-14 place-items-center rounded-xl border border-border bg-card text-[10px] font-bold uppercase tracking-wider text-muted-foreground transition-all hover:border-primary hover:text-primary md:h-16 md:w-16"
-                title={t}
-              >
-                {t.slice(0, 2)}
-              </div>
-            ))}
-          </div>
+          <TechStack />
         </div>
+
 
         {/* Certification */}
         <div className="mt-20 grid gap-10 md:grid-cols-12">
