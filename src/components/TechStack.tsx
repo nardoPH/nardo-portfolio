@@ -33,13 +33,13 @@ export function TechStack({ label = "Tech Stacks", className = "" }: Props) {
           <div
             key={t.name}
             title={t.name}
-            className="group grid h-14 w-14 place-items-center rounded-xl border border-border bg-card transition-all hover:-translate-y-1 hover:border-primary hover:shadow-lg hover:shadow-primary/10 md:h-16 md:w-16"
+            className="group grid h-14 w-14 place-items-center rounded-xl border border-border bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:border-primary hover:shadow-lg hover:shadow-primary/20 md:h-16 md:w-16"
           >
             <img
               src={`https://api.iconify.design/${t.icon}.svg`}
               alt={t.name}
               loading="lazy"
-              className="h-8 w-8 md:h-9 md:w-9 transition-transform group-hover:scale-110"
+              className="h-8 w-8 md:h-9 md:w-9 transition-transform duration-300 group-hover:scale-110"
             />
           </div>
         ))}
