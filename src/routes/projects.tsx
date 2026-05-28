@@ -3,6 +3,15 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Github, ExternalLink, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { fetchProjects, type Project } from "@/lib/projects";
+import navigent from "@/assets/figma/navigent.png";
+import sample2k25 from "@/assets/figma/sample-2k25.png";
+import sampleRj8 from "@/assets/figma/sample-rj8.png";
+import sampleLaptop from "@/assets/figma/sample-laptop.png";
+import sampleRodel from "@/assets/figma/sample-rodel.png";
+
+const FALLBACK_IMAGES = [navigent, sample2k25, sampleRj8, sampleLaptop, sampleRodel];
+const imagesFor = (p: Project, i: number) =>
+  p.images && p.images.length > 0 ? p.images : [FALLBACK_IMAGES[i % FALLBACK_IMAGES.length]];
 
 export const Route = createFileRoute("/projects")({
   head: () => ({
@@ -21,7 +30,8 @@ function ProjectsPage() {
     queryKey: ["projects"],
     queryFn: fetchProjects,
   });
-  const [open, setOpen] = useState<Project | null>(null);
+  const [openIdx, setOpenIdx] = useState<number | null>(null);
+  const open = openIdx !== null ? projects[openIdx] : null;
 
   return (
     <div className="container-prose pt-20 pb-24 md:pt-32">
