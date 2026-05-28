@@ -2,7 +2,7 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
 import { useEffect, useRef, useState } from "react";
 import { X, Send, Sparkles } from "lucide-react";
-import nardoLogo from "@/assets/figma/n-logo.png";
+import nardoLogo from "@/assets/figma/ai-logo.png";
 
 const SUGGESTIONS = [
   "Who are you?",
