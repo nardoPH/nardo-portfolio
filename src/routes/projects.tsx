@@ -3,6 +3,15 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Github, ExternalLink, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { fetchProjects, type Project } from "@/lib/projects";
+import navigent from "@/assets/figma/navigent.png";
+import sample2k25 from "@/assets/figma/sample-2k25.png";
+import sampleRj8 from "@/assets/figma/sample-rj8.png";
+import sampleLaptop from "@/assets/figma/sample-laptop.png";
+import sampleRodel from "@/assets/figma/sample-rodel.png";
+
+const FALLBACK_IMAGES = [navigent, sample2k25, sampleRj8, sampleLaptop, sampleRodel];
+const imagesFor = (p: Project, i: number) =>
+  p.images && p.images.length > 0 ? p.images : [FALLBACK_IMAGES[i % FALLBACK_IMAGES.length]];
 
 export const Route = createFileRoute("/projects")({
   head: () => ({
@@ -21,7 +30,8 @@ function ProjectsPage() {
     queryKey: ["projects"],
     queryFn: fetchProjects,
   });
-  const [open, setOpen] = useState<Project | null>(null);
+  const [openIdx, setOpenIdx] = useState<number | null>(null);
+  const open = openIdx !== null ? projects[openIdx] : null;
 
   return (
     <div className="container-prose pt-20 pb-24 md:pt-32">
@@ -40,49 +50,60 @@ function ProjectsPage() {
             </div>
           ))}
 
-        {projects.map((p, i) => (
-          <article
-            key={p.id}
-            className="reveal group cursor-pointer"
-            style={{ animationDelay: `${i * 0.05}s` }}
-            onClick={() => setOpen(p)}
-          >
-            <div className="aspect-[4/3] overflow-hidden rounded-md bg-muted">
-              {p.images?.[0] ? (
+        {projects.map((p, i) => {
+          const imgs = imagesFor(p, i);
+          return (
+            <article
+              key={p.id}
+              className="reveal group cursor-pointer"
+              style={{ animationDelay: `${i * 0.05}s` }}
+              onClick={() => setOpenIdx(i)}
+            >
+              <div className="aspect-[4/3] overflow-hidden rounded-md bg-muted">
                 <img
-                  src={p.images[0]}
+                  src={imgs[0]}
                   alt={p.title}
                   className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center font-serif text-6xl text-muted-foreground/40">
-                  {String(i + 1).padStart(2, "0")}
-                </div>
-              )}
-            </div>
-            <div className="mt-5 flex items-start justify-between gap-4">
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                  {p.tags.slice(0, 3).join(" · ")}
-                </p>
-                <h2 className="font-serif mt-2 text-2xl">
-                  <span className="link-underline">{p.title}</span>
-                </h2>
               </div>
-            </div>
-            <p className="mt-3 text-sm text-muted-foreground line-clamp-2">{p.description}</p>
-          </article>
-        ))}
+              <div className="mt-5 flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                    {p.tags.slice(0, 3).join(" · ")}
+                  </p>
+                  <h2 className="font-serif mt-2 text-2xl">
+                    <span className="link-underline">{p.title}</span>
+                  </h2>
+                </div>
+              </div>
+              <p className="mt-3 text-sm text-muted-foreground line-clamp-2">{p.description}</p>
+            </article>
+          );
+        })}
       </div>
 
-      {open && <ProjectDialog project={open} onClose={() => setOpen(null)} />}
+      {open && openIdx !== null && (
+        <ProjectDialog
+          project={open}
+          fallbackImages={imagesFor(open, openIdx)}
+          onClose={() => setOpenIdx(null)}
+        />
+      )}
     </div>
   );
 }
 
-function ProjectDialog({ project, onClose }: { project: Project; onClose: () => void }) {
+function ProjectDialog({
+  project,
+  fallbackImages,
+  onClose,
+}: {
+  project: Project;
+  fallbackImages: string[];
+  onClose: () => void;
+}) {
   const [idx, setIdx] = useState(0);
-  const images = project.images ?? [];
+  const images = project.images && project.images.length > 0 ? project.images : fallbackImages;
   const has = images.length > 0;
 
   return (
