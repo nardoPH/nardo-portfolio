@@ -1,7 +1,8 @@
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
 import { useEffect, useRef, useState } from "react";
-import { MessageCircle, X, Send, Sparkles } from "lucide-react";
+import { X, Send, Sparkles } from "lucide-react";
+import nardoLogo from "@/assets/figma/n-logo.png";
 
 const SUGGESTIONS = [
   "Who are you?",
@@ -46,11 +47,15 @@ export function NardoAssistant() {
       <button
         onClick={() => setOpen((o) => !o)}
         aria-label={open ? "Close NARDO assistant" : "Open NARDO assistant"}
-        className="fixed bottom-5 right-5 z-50 grid h-14 w-14 place-items-center rounded-full bg-primary text-primary-foreground shadow-[0_10px_40px_-10px_var(--brand)] transition-all hover:scale-105 active:scale-95 md:bottom-8 md:right-8"
+        className="group fixed bottom-5 right-5 z-50 grid h-14 w-14 place-items-center overflow-hidden rounded-full bg-primary text-primary-foreground shadow-[0_10px_40px_-10px_var(--brand)] transition-all duration-300 hover:scale-110 hover:shadow-[0_15px_50px_-10px_var(--brand-glow)] active:scale-95 md:bottom-8 md:right-8"
       >
-        {open ? <X className="h-5 w-5" /> : <MessageCircle className="h-5 w-5" />}
+        {open ? (
+          <X className="h-5 w-5 transition-transform duration-300 group-hover:rotate-90" />
+        ) : (
+          <img src={nardoLogo} alt="NARDO" className="h-9 w-9 object-contain transition-transform duration-300 group-hover:scale-110" />
+        )}
         {!open && (
-          <span className="absolute -top-1 -right-1 grid h-4 w-4 place-items-center rounded-full bg-background">
+          <span className="absolute -top-1 -right-1 grid h-4 w-4 place-items-center rounded-full bg-background animate-pulse">
             <Sparkles className="h-2.5 w-2.5 text-primary" />
           </span>
         )}
@@ -67,8 +72,8 @@ export function NardoAssistant() {
         <div className="flex h-[70vh] max-h-[600px] flex-col overflow-hidden rounded-2xl border border-border bg-background/95 shadow-2xl backdrop-blur-xl">
           {/* Header */}
           <div className="flex items-center gap-3 border-b border-border bg-gradient-to-r from-primary/15 to-transparent px-5 py-4">
-            <div className="grid h-9 w-9 place-items-center rounded-full bg-primary text-primary-foreground">
-              <Sparkles className="h-4 w-4" />
+            <div className="grid h-9 w-9 place-items-center overflow-hidden rounded-full bg-primary">
+              <img src={nardoLogo} alt="NARDO" className="h-7 w-7 object-contain" />
             </div>
             <div className="flex-1">
               <p className="text-sm font-semibold">NARDO Assistant</p>
