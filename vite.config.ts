@@ -1,11 +1,14 @@
+import { defineConfig } from 'vite';
+import { TanStackRouterVite } from '@tanstack/router-plugin/vite';
+import react from '@vitejs/plugin-react';
+import { cloudflare } from '@cloudflare/vite-plugin';
+import tsconfigPaths from 'vite-tsconfig-paths';
+
 export default defineConfig({
   plugins: [
-    // your plugins like TanStackRouterVite(), react()
+    tsconfigPaths(),
+    TanStackRouterVite(),
+    react(),
+    cloudflare(),
   ],
-  ssr: {
-    noExternal: ['@tanstack/start', '@tanstack/start-server-core'],
-  },
-  optimizeDeps: {
-    include: ['@tanstack/start', '@tanstack/start-server-core'],
-  }
 });
