@@ -3,5 +3,10 @@
   "name": "tanstack-start-app",
   "compatibility_date": "2025-09-24",
   "compatibility_flags": ["nodejs_compat"],
-  "main": "src/server.ts",
+  // Change this line 👇
+  "main": ".output/server/index.mjs",
+  // Add this block so Wrangler knows where your frontend assets (CSS/Images) are 👇
+  "assets": {
+    "directory": ".output/public"
+  }
 }
