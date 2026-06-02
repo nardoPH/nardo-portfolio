@@ -3,10 +3,10 @@
   "private": true, 
   "sideEffects": false,
   "type": "module",
-"scripts": {
-    "dev": "vinxi dev",
-    "build": "vinxi build",
-    "preview": "vinxi preview",
+  "scripts": {
+    "dev": "bun x vinxi dev",
+    "build": "bun x vinxi build",
+    "preview": "bun x vinxi preview",
     "lint": "eslint ."
   },
 
