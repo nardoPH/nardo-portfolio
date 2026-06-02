@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
-import { createLovableAiGatewayProvider } from "@/lib/ai-gateway.server";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
 
 function buildSystemPrompt() {
   const now = new Date();
@@ -59,12 +59,21 @@ export const Route = createFileRoute("/api/chat")({
             }
           }
 
-          const key = process.env.LOVABLE_API_KEY;
-          if (!key) return new Response("Missing LOVABLE_API_KEY", { status: 500 });
+          // Fetch the key safely from global Cloudflare variables or fallbacks
+          const apiKey = (globalThis as any).env?.GEMINI_API_KEY || 
+                         (globalThis as any).env?.GOOGLE_GENERATIVE_AI_API_KEY ||
+                         import.meta.env.VITE_GEMINI_API_KEY || 
+                         process.env.GEMINI_API_KEY;
 
-          const gateway = createLovableAiGatewayProvider(key);
+          if (!apiKey) {
+            return new Response("Missing Gemini API Key configuration", { status: 500 });
+          }
+
+          // Initialize the direct Google provider
+          const google = createGoogleGenerativeAI({ apiKey });
+          
           const result = streamText({
-            model: gateway("google/gemini-3-flash-preview"),
+            model: google("gemini-2.5-flash"),
             system: buildSystemPrompt(),
             messages: await convertToModelMessages(messages),
           });
