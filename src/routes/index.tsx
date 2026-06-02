@@ -78,9 +78,16 @@ function Index() {
     queryKey: ["projects"],
     queryFn: fetchProjects,
   });
+  const { data: dbReviews = [] } = useQuery({
+    queryKey: ["reviews", "approved"],
+    queryFn: fetchApprovedReviews,
+  });
   const featured = projects.filter((p) => p.featured).slice(0, 4);
   const fallbackImages = [navigent, sample2k25, sampleRj8, sampleLaptop];
-
+  const testimonials = dbReviews.length
+    ? dbReviews.map((r) => ({ name: r.name, rating: r.rating, comment: r.comment }))
+    : fallbackTestimonials;
+  
   return (
     <div>
       {/* HERO */}
