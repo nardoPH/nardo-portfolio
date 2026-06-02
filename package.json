@@ -4,17 +4,11 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "dev": "bun x vinxi dev",
-    "build": "bun x vinxi build",
-    "preview": "bun x vinxi preview",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
     "lint": "eslint ."
   },
-
-
-
-
-
-
   "dependencies": {
     "@ai-sdk/google": "^1.1.13",
     "@ai-sdk/openai-compatible": "^2.0.48",
