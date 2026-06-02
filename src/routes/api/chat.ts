@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 
 function buildSystemPrompt() {
   const now = new Date();
@@ -59,21 +59,25 @@ export const Route = createFileRoute("/api/chat")({
             }
           }
 
-          // Fetch the key safely from global Cloudflare variables or fallbacks
-          const apiKey = (globalThis as any).env?.GEMINI_API_KEY || 
-                         (globalThis as any).env?.GOOGLE_GENERATIVE_AI_API_KEY ||
-                         import.meta.env.VITE_GEMINI_API_KEY || 
-                         process.env.GEMINI_API_KEY;
+          // Fetch your key safely from any of the dashboard positions we set up
+          const apiKey = (globalThis as any).env?.OPENAI_API_KEY || 
+                         (globalThis as any).env?.GEMINI_API_KEY ||
+                         import.meta.env.VITE_OPENAI_API_KEY || 
+                         process.env.OPENAI_API_KEY;
 
           if (!apiKey) {
-            return new Response("Missing Gemini API Key configuration", { status: 500 });
+            return new Response("Missing API Key configuration", { status: 500 });
           }
 
-          // Initialize the direct Google provider
-          const google = createGoogleGenerativeAI({ apiKey });
+          // Initialize via the OpenAI-compatible package pointing directly to Google's endpoint
+          const geminiGateway = createOpenAICompatible({
+            name: "gemini",
+            baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
+            apiKey: apiKey,
+          });
           
           const result = streamText({
-            model: google("gemini-2.5-flash"),
+            model: geminiGateway("gemini-2.5-flash"),
             system: buildSystemPrompt(),
             messages: await convertToModelMessages(messages),
           });
