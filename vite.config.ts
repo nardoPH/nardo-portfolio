@@ -4,7 +4,8 @@ import react from '@vitejs/plugin-react';
 import { cloudflare } from '@cloudflare/vite-plugin';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
-export default defineConfig({
+// We explicitly declare the configuration object to bypass compilation resolution issues
+const config = defineConfig({
   plugins: [
     tsconfigPaths(),
     TanStackRouterVite(),
@@ -12,3 +13,5 @@ export default defineConfig({
     cloudflare(),
   ],
 });
+
+export default config;
