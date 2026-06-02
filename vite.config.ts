@@ -1,16 +1,12 @@
 import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
+import { tanstackStartVite } from "@tanstack/start/vite";
 import tsconfigPaths from "vite-tsconfig-paths";
-import lovableConfigPkg from "@lovable.dev/vite-tanstack-config";
-
-// Force load the proper full-stack compiler wrapper safely
-const tanstackViteConfig = (lovableConfigPkg as any).tanstackViteConfig || lovableConfigPkg;
-
-const baseConfig = typeof tanstackViteConfig === "function" ? tanstackViteConfig() : [];
 
 export default defineConfig({
   plugins: [
-    ...baseConfig
+    // This connects TanStack Start directly to Cloudflare without relying on Lovable sandbox variables
+    tanstackStartVite() as any,
+    tsconfigPaths()
   ],
   server: {
     host: "::",
