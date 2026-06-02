@@ -3,13 +3,11 @@
   "private": true, 
   "sideEffects": false,
   "type": "module",
-    "scripts": {
+  "scripts": {
     "dev": "vinxi dev",
     "build": "vinxi build",
     "preview": "vinxi preview",
     "lint": "eslint ."
-  },
-
   },
   "dependencies": {
     "@ai-sdk/google": "^1.1.13",
