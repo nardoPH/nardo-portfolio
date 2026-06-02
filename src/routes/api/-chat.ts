@@ -2,7 +2,7 @@ import { google } from "@ai-sdk/google";
 import { streamText, type UIMessage } from "ai";
 
 /**
- * Builds the customized system prompt context for NARDO.
+ * Generates the specific system character personality data for NARDO.
  */
 export function getSystemPrompt(): string {
   const now = new Date();
@@ -37,17 +37,17 @@ Security rules:
 }
 
 /**
- * Executes a client-safe direct model initialization stream request.
+ * Handles the direct client-side creation of the text generation stream.
  */
 export async function getChatStreamResponse(messages: UIMessage[]) {
-  // Pull key securely from Vite's client-exposed environment context
+  // Pulls key safely from Vite's client-exposed build variables
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
   if (!apiKey) {
-    throw new Error("Missing VITE_GEMINI_API_KEY environment configuration.");
+    throw new Error("Missing VITE_GEMINI_API_KEY configuration variable.");
   }
 
-  // Format standard messages safely for the model structure
+  // Map messages array to standard CoreMessage format required by the AI SDK
   const coreMessages = messages.map((m) => ({
     role: m.role === "user" ? ("user" as const) : ("assistant" as const),
     content: m.content,
