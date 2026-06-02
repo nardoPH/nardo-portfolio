@@ -65,14 +65,9 @@ export const Route = createFileRoute("/api/chat")({
             messages: await convertToModelMessages(messages),
           });
 
-          // Standardize response header mapping specifically for the AI SDK Text Stream protocol
-          return new Response(result.textStream.pipeThrough(new TextEncoderStream()), {
-            status: 200,
-            headers: {
-              "Content-Type": "text/plain; charset=utf-8",
-              "X-Experimental-Stream-Data": "true", // Signals the hook to parse text properly
-            },
-          });
+          // This formats the stream correctly so your frontend useChat hook catches it instantly
+          return result.toDataStreamResponse();
+          
         } catch (err) {
           console.error("[api/chat] Error:", err);
           return new Response("Server error handling stream", { status: 500 });
