@@ -1,13 +1,9 @@
 import { defineConfig } from 'vite';
-import { tanstackBuildConfig } from '@lovable.dev/vite-tanstack-config';
+import lovableConfigPkg from '@lovable.dev/vite-tanstack-config';
+
+// Extract the configuration safely using the default package export
+const lovableConfig = lovableConfigPkg.tanstackBuildConfig || lovableConfigPkg;
 
 export default defineConfig({
-  ...tanstackBuildConfig,
-  // This explicitly prevents Vite from searching for a missing index.html file
-  build: {
-    ...tanstackBuildConfig?.build,
-    rollupOptions: {
-      ...tanstackBuildConfig?.build?.rollupOptions,
-    }
-  }
+  ...lovableConfig,
 });
