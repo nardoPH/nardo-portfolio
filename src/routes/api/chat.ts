@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { convertToModelMessages, streamText, createDataStreamResponse, type UIMessage } from "ai";
+import { convertToModelMessages, streamText, type UIMessage } from "ai";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 
 function buildSystemPrompt() {
@@ -38,44 +38,45 @@ export const Route = createFileRoute("/api/chat")({
   server: {
     handlers: {
       POST: async ({ request, context }) => {
-        // Use createDataStreamResponse to guarantee the frontend useChat hook can read the chunks
-        return createDataStreamResponse({
-          execute: async (dataStream) => {
-            try {
-              const body = (await request.json()) as { messages?: UIMessage[] };
-              const messages = body.messages;
-              if (!Array.isArray(messages) || messages.length === 0) {
-                throw new Error("Invalid or empty messages array");
-              }
+        try {
+          const body = (await request.json()) as { messages?: UIMessage[] };
+          const messages = body.messages;
+          if (!Array.isArray(messages) || messages.length === 0) {
+            return new Response("Invalid messages", { status: 400 });
+          }
 
-              // Gather variables securely from Cloudflare Worker context bindings
-              const env = (context as any)?.env || (request as any).env || (globalThis as any).env || {};
-              const apiKey = env.OPENAI_API_KEY || env.GEMINI_API_KEY || process.env.OPENAI_API_KEY;
+          // Secure environment retrieval across Cloudflare context variations
+          const env = (context as any)?.env || (request as any).env || (globalThis as any).env || {};
+          const apiKey = env.OPENAI_API_KEY || env.GEMINI_API_KEY || process.env.OPENAI_API_KEY;
 
-              if (!apiKey) {
-                throw new Error("Missing API Credentials in environment context");
-              }
+          if (!apiKey) {
+            return new Response("Missing API Credentials", { status: 500 });
+          }
 
-              const gateway = createOpenAICompatible({
-                name: "gemini",
-                baseURL: "https://generativelanguage.googleapis.com/v1beta/openai",
-                apiKey: apiKey,
-              });
+          const gateway = createOpenAICompatible({
+            name: "gemini",
+            baseURL: "https://generativelanguage.googleapis.com/v1beta/openai",
+            apiKey: apiKey,
+          });
+          
+          const result = streamText({
+            model: gateway("gemini-1.5-flash"),
+            system: buildSystemPrompt(),
+            messages: await convertToModelMessages(messages),
+          });
 
-              const result = streamText({
-                model: gateway("gemini-1.5-flash"),
-                system: buildSystemPrompt(),
-                messages: await convertToModelMessages(messages),
-              });
-
-              // Safely pipe the execution stream directly through Cloudflare's runtime matrix
-              result.mergeIntoDataStream(dataStream);
-            } catch (err) {
-              console.error("[api/chat] Stream block initialization crash:", err);
-              dataStream.writeError(err instanceof Error ? err.message : "Internal Server Error");
-            }
-          },
-        });
+          // Standardize response header mapping specifically for the AI SDK Text Stream protocol
+          return new Response(result.textStream.pipeThrough(new TextEncoderStream()), {
+            status: 200,
+            headers: {
+              "Content-Type": "text/plain; charset=utf-8",
+              "X-Experimental-Stream-Data": "true", // Signals the hook to parse text properly
+            },
+          });
+        } catch (err) {
+          console.error("[api/chat] Error:", err);
+          return new Response("Server error handling stream", { status: 500 });
+        }
       },
     },
   },
