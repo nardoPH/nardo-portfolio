@@ -1,8 +1,10 @@
-import { createServerFn } from "@tanstack/start";
 import { google } from "@ai-sdk/google";
-import { streamText, type UIMessage, convertToModelMessages } from "ai";
+import { streamText, type UIMessage } from "ai";
 
-function buildSystemPrompt() {
+/**
+ * Builds the customized system prompt context for NARDO.
+ */
+export function getSystemPrompt(): string {
   const now = new Date();
   const today = now.toLocaleDateString("en-US", {
     weekday: "long",
@@ -10,6 +12,7 @@ function buildSystemPrompt() {
     month: "long",
     day: "numeric",
   });
+
   return `You are NARDO — the personal AI assistant of Lenhard Pedro Malana (nickname: NARDO), a Philippines-based UX/UI & Graphic Designer.
 You speak in first person AS Lenhard. When asked "who are you?" reply as him.
 
@@ -33,31 +36,26 @@ Security rules:
 - Stay on topic: Lenhard's work, services, projects, design, and how to get in touch.`;
 }
 
-// TanStack native server execution container
-export const chatStreamFn = createServerFn({ method: "POST" })
-  .validator((messages: unknown) => {
-    if (!Array.isArray(messages)) throw new Error("Messages must be an array");
-    return messages as UIMessage[];
-  })
-  .handler(async ({ data: messages }) => {
-    try {
-      // Direct environmental variable lookup
-      const apiKey = process.env.GEMINI_API_KEY || (globalThis as any).env?.GEMINI_API_KEY;
+/**
+ * Executes a client-safe direct model initialization stream request.
+ */
+export async function getChatStreamResponse(messages: UIMessage[]) {
+  // Pull key securely from Vite's client-exposed environment context
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
-      if (!apiKey) {
-        throw new Error("Missing GEMINI_API_KEY config variable in server environment.");
-      }
+  if (!apiKey) {
+    throw new Error("Missing VITE_GEMINI_API_KEY environment configuration.");
+  }
 
-      const result = streamText({
-        model: google("gemini-1.5-flash", { apiKey }),
-        system: buildSystemPrompt(),
-        messages: await convertToModelMessages(messages),
-      });
+  // Format standard messages safely for the model structure
+  const coreMessages = messages.map((m) => ({
+    role: m.role === "user" ? ("user" as const) : ("assistant" as const),
+    content: m.content,
+  }));
 
-      // Returns a clean stream protocol directly over the RPC bridge
-      return result.toDataStreamResponse();
-    } catch (err: any) {
-      console.error("Error in chatStreamFn:", err);
-      throw new Error(err?.message || "Internal Assistant Error");
-    }
+  return streamText({
+    model: google("gemini-1.5-flash", { apiKey }),
+    system: getSystemPrompt(),
+    messages: coreMessages,
   });
+}
