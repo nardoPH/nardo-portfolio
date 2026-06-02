@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useChat } from "@ai-sdk/react";
 import { useEffect, useRef } from "react";
 import { Send, User, Bot, Loader2 } from "lucide-react";
-import { getChatStreamResponse } from "./api/-chat"; // Imported securely from our ignored file route location
+import { getChatStreamResponse } from "./api/-chat";
 
 export const Route = createFileRoute("/chat")({
   component: ChatComponent,
