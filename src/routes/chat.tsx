@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useChat } from "@ai-sdk/react";
 import { useEffect, useRef } from "react";
 import { Send, User, Bot, Loader2 } from "lucide-react";
-import { chatStreamFn } from "./api/chat"; // Import our new server function directly
+import { getChatStreamResponse } from "./api/-chat"; // Note the clean local hyphen import path
 
 export const Route = createFileRoute("/chat")({
   component: ChatComponent,
@@ -10,15 +10,20 @@ export const Route = createFileRoute("/chat")({
 
 function ChatComponent() {
   const { messages, input, handleInputChange, handleSubmit, isLoading, error } = useChat({
-    // Custom fetch router hooking into TanStack's server runtime function pipeline
+    // Custom intercept handler to stream processing entirely inside the client sandbox
     fetch: async (url, options) => {
       try {
         const body = JSON.parse(options?.body as string);
-        // Call the server function directly via its RPC interface handler
-        const response = await chatStreamFn({ data: body.messages });
-        return response;
+        const streamResult = await getChatStreamResponse(body.messages);
+        
+        // Return standard raw stream response configuration directly back to useChat
+        return streamResult.toDataStreamResponse();
       } catch (err: any) {
-        return new Response(err?.message || "Failed to establish bridge stream connection", { status: 500 });
+        console.error("Direct execution failure:", err);
+        return new Response(
+          JSON.stringify({ error: err?.message || "Failed to process chat pipeline locally" }), 
+          { status: 500, headers: { "Content-Type": "application/json" } }
+        );
       }
     },
   });
@@ -74,7 +79,7 @@ function ChatComponent() {
 
         {error && (
           <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm">
-            Something went wrong connecting to the assistant. Please verify your GEMINI_API_KEY configuration variable.
+            Something went wrong connecting to the assistant. Please verify your VITE_GEMINI_API_KEY setup inside your hosting environment controls.
           </div>
         )}
         <div ref={messagesEndRef} />
