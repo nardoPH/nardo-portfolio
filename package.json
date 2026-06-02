@@ -3,12 +3,13 @@
   "private": true, 
   "sideEffects": false,
   "type": "module",
-  "scripts": {
-    "dev": "vite dev",
-    "build": "vite build",
-    "preview": "vite preview",
+"scripts": {
+    "dev": "vinxi dev",
+    "build": "vinxi build",
+    "preview": "vinxi preview",
     "lint": "eslint ."
   },
+
 
 
 
