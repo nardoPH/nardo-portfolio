@@ -51,7 +51,6 @@ export const Route = createFileRoute("/api/chat")({
           if (messages.length > MAX_MESSAGES) {
             return new Response("Too many messages", { status: 400 });
           }
-          // Basic size guard against prompt-injection payload bombs
           for (const m of messages) {
             const text = JSON.stringify(m.parts ?? "");
             if (text.length > MAX_CHARS_PER_MSG) {
@@ -59,35 +58,34 @@ export const Route = createFileRoute("/api/chat")({
             }
           }
 
-          // Extract variables directly from TanStack handler context bindings or Cloudflare context
-          const cfEnv = (context as any)?.env || (request as any).env || {};
-          const apiKey = cfEnv.OPENAI_API_KEY || 
-                         cfEnv.GEMINI_API_KEY || 
-                         import.meta.env.VITE_OPENAI_API_KEY || 
-                         process.env.OPENAI_API_KEY;
+          // Secure environment extraction from Cloudflare worker parameters
+          const env = (context as any)?.env || (request as any).env || (globalThis as any).env || {};
+          const apiKey = env.OPENAI_API_KEY || env.GEMINI_API_KEY || process.env.OPENAI_API_KEY;
 
           if (!apiKey) {
-            console.error("[api/chat] Missing key configuration. Context content:", JSON.stringify(cfEnv));
-            return new Response("Missing API Key configuration", { status: 500 });
+            return new Response("Missing API Credentials", { status: 500 });
           }
 
-          // Point to Google's standard OpenAI base compatibility matrix
-          const geminiGateway = createOpenAICompatible({
+          // Use standard AI SDK fallback mapping
+          const gateway = createOpenAICompatible({
             name: "gemini",
-            baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
+            baseURL: "https://generativelanguage.googleapis.com/v1beta/openai",
             apiKey: apiKey,
+            headers: {
+              "HTTP-Referer": "https://lovable.dev",
+            }
           });
           
           const result = streamText({
-            model: geminiGateway("gemini-1.5-flash"),
+            model: gateway("gemini-1.5-flash"),
             system: buildSystemPrompt(),
             messages: await convertToModelMessages(messages),
           });
 
           return result.toUIMessageStreamResponse({ originalMessages: messages });
         } catch (err) {
-          console.error("[api/chat] error", err);
-          return new Response("Server error", { status: 500 });
+          console.error("[api/chat] Critical Handshake Failure:", err);
+          return new Response("Server error running completion stream", { status: 500 });
         }
       },
     },
