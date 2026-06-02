@@ -1,16 +1,15 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tsconfigPaths from "vite-tsconfig-paths";
-// Import via default export to safely handle CommonJS modules outside Lovable's environment
 import lovableConfigPkg from "@lovable.dev/vite-tanstack-config";
 
+// Safely extract the custom TanStack router bundle hook from the CommonJS package wrapper
 const tanstackViteConfig = (lovableConfigPkg as any).tanstackViteConfig || lovableConfigPkg;
 
 export default defineConfig(({ mode }) => ({
   plugins: [
-    react(),
-    tsconfigPaths(),
-    ...(typeof tanstackViteConfig === "function" ? tanstackViteConfig() : [])
+    // This spreads the default TanStack Start compilation pipelines
+    ...(typeof tanstackViteConfig === "function" ? tanstackViteConfig() : [react(), tsconfigPaths()]),
   ],
   server: {
     host: "::",
@@ -20,11 +19,6 @@ export default defineConfig(({ mode }) => ({
     chunkSizeWarningLimit: 2000,
     minify: "esbuild",
     cssMinify: true,
-    target: "esnext",
-    rollupOptions: {
-      output: {
-        manualChunks: undefined
-      }
-    }
+    target: "esnext"
   }
 }));
