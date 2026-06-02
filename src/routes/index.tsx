@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowUpRight, ArrowRight, Mail, Instagram, Linkedin, MessageCircle, Star, Eye, Package, PenTool, Layers } from "lucide-react";
+import { ArrowUpRight, ArrowRight, Mail, Instagram, Linkedin, MessageCircle, Star, Package, PenTool, Layers } from "lucide-react";
 import { fetchProjects } from "@/lib/projects";
+import { fetchApprovedReviews } from "@/lib/reviews";
 import portrait from "@/assets/figma/portrait-hero.png";
 import navigent from "@/assets/figma/navigent.png";
 import sample2k25 from "@/assets/figma/sample-2k25.png";
@@ -9,6 +10,9 @@ import sampleRodel from "@/assets/figma/sample-rodel.png";
 import sampleRj8 from "@/assets/figma/sample-rj8.png";
 import sampleLaptop from "@/assets/figma/sample-laptop.png";
 import { TechStack } from "@/components/TechStack";
+import { MiniJourney } from "@/components/Journey";
+import { ProfileViews } from "@/components/ProfileViews";
+import { ReviewModal, maskName } from "@/components/ReviewModal";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -64,13 +68,13 @@ const promos = [
   { title: "Sample Designs", sub: "A Quick Look At Some of My Design Projects", img: sampleRodel },
 ];
 
-const testimonials = [
-  { n: "G*****s N********t", q: "Awesome client! Communication was easy, and even with rush work, everything went smoothly. Definitely someone I'd love to work with again — highly recommended!" },
-  { n: "D*** A***", q: "We saw an immediate improvement in engagement after launching the new design. Highly recommend!" },
-  { n: "M*****", q: "Professional, creative, and attentive to details — everything we needed in a designer." },
-  { n: "K******** R*", q: "Thank you for your hard work. The design looks beautiful, formal, and aligned with the branding. Superb quality compared to the last provider." },
-  { n: "T*** D*", q: "Working with Lenhard was effortless — our brand now feels modern and professional, and our customers love it." },
-  { n: "J* S*********", q: "Very accommodating throughout the whole process and highly comprehensive. Plus, I really appreciated the consistent updates and communication." },
+const fallbackTestimonials = [
+  { name: "Geneveis Navigent", rating: 5, comment: "Awesome client! Communication was easy, and even with rush work, everything went smoothly. Definitely someone I'd love to work with again — highly recommended!" },
+  { name: "Dean Ardo", rating: 5, comment: "We saw an immediate improvement in engagement after launching the new design. Highly recommend!" },
+  { name: "Marvin", rating: 5, comment: "Professional, creative, and attentive to details — everything we needed in a designer." },
+  { name: "Katherine Ra", rating: 5, comment: "Thank you for your hard work. The design looks beautiful, formal, and aligned with the branding. Superb quality compared to the last provider." },
+  { name: "Tito Do", rating: 5, comment: "Working with Lenhard was effortless — our brand now feels modern and professional, and our customers love it." },
+  { name: "Jo Santiago", rating: 5, comment: "Very accommodating throughout the whole process and highly comprehensive. Plus, I really appreciated the consistent updates and communication." },
 ];
 
 function Index() {
@@ -87,16 +91,14 @@ function Index() {
   const testimonials = dbReviews.length
     ? dbReviews.map((r) => ({ name: r.name, rating: r.rating, comment: r.comment }))
     : fallbackTestimonials;
-  
+
   return (
     <div>
       {/* HERO */}
       <section className="bg-radial-hero relative overflow-hidden">
         <div className="container-prose grid items-center gap-12 pt-16 pb-24 md:grid-cols-12 md:pt-24 md:pb-32">
           <div className="md:col-span-7">
-            <div className="reveal inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-4 py-1.5 text-xs text-muted-foreground">
-              <Eye className="h-3.5 w-3.5" /> 1,037 Profile Views
-            </div>
+            <ProfileViews page="home" />
             <p className="reveal mt-6 text-lg" style={{ animationDelay: "0.1s" }}>
               Hi I'm <span className="text-brand font-semibold">Lenhard</span>{" "}
               <span className="text-xl">👋 🇵🇭</span>
@@ -281,20 +283,36 @@ function Index() {
               className="rounded-2xl border border-border bg-card p-7 transition-colors hover:border-primary/40"
             >
               <div className="flex gap-1 text-primary">
-                {[...Array(5)].map((_, k) => (
+                {[...Array(t.rating)].map((_, k) => (
                   <Star key={k} className="h-3.5 w-3.5 fill-current" />
                 ))}
               </div>
               <blockquote className="mt-4 text-sm leading-relaxed text-foreground/90">
-                "{t.q}"
+                "{t.comment}"
               </blockquote>
               <figcaption className="mt-5 text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                — {t.n}
+                — {maskName(t.name)}
               </figcaption>
             </figure>
           ))}
         </div>
+        <div className="mt-12 text-center">
+          <ReviewModal
+            trigger={
+              <button
+                type="button"
+                className="inline-flex items-center gap-2 rounded-full border border-border px-6 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-foreground transition-colors hover:border-primary hover:text-primary"
+              >
+                Leave a review <Star className="h-3.5 w-3.5" />
+              </button>
+            }
+          />
+        </div>
       </section>
+
+      {/* MINI JOURNEY */}
+      <MiniJourney />
+
 
       {/* RECENT WORKS */}
       <section className="container-prose py-24">
