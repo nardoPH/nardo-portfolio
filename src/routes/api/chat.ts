@@ -41,7 +41,7 @@ const MAX_CHARS_PER_MSG = 2000;
 export const Route = createFileRoute("/api/chat")({
   server: {
     handlers: {
-      POST: async ({ request }) => {
+      POST: async ({ request, context }) => {
         try {
           const body = (await request.json()) as { messages?: UIMessage[] };
           const messages = body.messages;
@@ -59,17 +59,19 @@ export const Route = createFileRoute("/api/chat")({
             }
           }
 
-          // Fetch your key safely from any of the dashboard positions we set up
-          const apiKey = (globalThis as any).env?.OPENAI_API_KEY || 
-                         (globalThis as any).env?.GEMINI_API_KEY ||
+          // Extract variables directly from TanStack handler context bindings or Cloudflare context
+          const cfEnv = (context as any)?.env || (request as any).env || {};
+          const apiKey = cfEnv.OPENAI_API_KEY || 
+                         cfEnv.GEMINI_API_KEY || 
                          import.meta.env.VITE_OPENAI_API_KEY || 
                          process.env.OPENAI_API_KEY;
 
           if (!apiKey) {
+            console.error("[api/chat] Missing key configuration. Context content:", JSON.stringify(cfEnv));
             return new Response("Missing API Key configuration", { status: 500 });
           }
 
-          // Initialize via the OpenAI-compatible package pointing directly to Google's endpoint
+          // Point to Google's standard OpenAI base compatibility matrix
           const geminiGateway = createOpenAICompatible({
             name: "gemini",
             baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
@@ -77,7 +79,7 @@ export const Route = createFileRoute("/api/chat")({
           });
           
           const result = streamText({
-            model: geminiGateway("gemini-2.5-flash"),
+            model: geminiGateway("gemini-1.5-flash"),
             system: buildSystemPrompt(),
             messages: await convertToModelMessages(messages),
           });
