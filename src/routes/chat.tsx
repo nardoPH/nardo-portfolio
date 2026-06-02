@@ -2,33 +2,40 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useChat } from "@ai-sdk/react";
 import { useEffect, useRef } from "react";
 import { Send, User, Bot, Loader2 } from "lucide-react";
+import { chatStreamFn } from "./api/chat"; // Import our new server function directly
 
 export const Route = createFileRoute("/chat")({
   component: ChatComponent,
 });
 
 function ChatComponent() {
-  // Connects the UI directly to your /api/chat route engine
   const { messages, input, handleInputChange, handleSubmit, isLoading, error } = useChat({
-    api: "/api/chat",
+    // Custom fetch router hooking into TanStack's server runtime function pipeline
+    fetch: async (url, options) => {
+      try {
+        const body = JSON.parse(options?.body as string);
+        // Call the server function directly via its RPC interface handler
+        const response = await chatStreamFn({ data: body.messages });
+        return response;
+      } catch (err: any) {
+        return new Response(err?.message || "Failed to establish bridge stream connection", { status: 500 });
+      }
+    },
   });
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scrolls to the newest message when NARDO replies
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   return (
     <div className="flex flex-col h-screen max-w-3xl mx-auto p-4 font-sans bg-background text-foreground">
-      {/* Header */}
       <div className="border-b pb-4 mb-4">
         <h1 className="text-2xl font-bold tracking-tight">Chat with NARDO</h1>
         <p className="text-sm text-muted-foreground">AI Assistant to Lenhard Pedro Malana</p>
       </div>
 
-      {/* Chat History Window */}
       <div className="flex-1 overflow-y-auto space-y-4 pr-2 mb-4 scrollbar-thin">
         {messages.length === 0 && (
           <div className="text-center text-muted-foreground py-12">
@@ -43,9 +50,7 @@ function ChatComponent() {
           <div
             key={m.id}
             className={`flex items-start gap-3 p-4 rounded-lg border ${
-              m.role === "user"
-                ? "bg-muted/40 ml-12 border-muted"
-                : "bg-card mr-12 border-border"
+              m.role === "user" ? "bg-muted/40 ml-12 border-muted" : "bg-card mr-12 border-border"
             }`}
           >
             <div className="mt-0.5 p-1.5 rounded-md bg-secondary">
@@ -69,13 +74,12 @@ function ChatComponent() {
 
         {error && (
           <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm">
-            Something went wrong connecting to the assistant. Please verify your Cloudflare API keys.
+            Something went wrong connecting to the assistant. Please verify your GEMINI_API_KEY configuration variable.
           </div>
         )}
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Message Input Bar */}
       <form onSubmit={handleSubmit} className="flex gap-2 border-t pt-4 bg-background">
         <input
           value={input}
