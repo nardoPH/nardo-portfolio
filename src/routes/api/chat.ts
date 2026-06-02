@@ -11,13 +11,8 @@ export async function POST(request: Request, context?: any) {
       return new Response("Error: Empty messages array", { status: 400 });
     }
 
-    // Capture your API key from any possible environment wrapper layout
-    const env = context?.env || (request as any).env || (globalThis as any).env || process?.env || {};
-    const apiKey = env.GEMINI_API_KEY || env.OPENAI_API_KEY || (globalThis as any).GEMINI_API_KEY || process?.env?.GEMINI_API_KEY;
-
-    if (!apiKey) {
-      return new Response("Error: Missing GEMINI_API_KEY config variable", { status: 500 });
-    }
+    // 🌟 HARDCODE YOUR KEY HERE FOR AN IMMEDIATE QUICK FIX:
+    const apiKey = "AQ.Ab8RN6JR7MvctNgrdQAY6Gr7IuDH66hbyQn2mo0ql2OcbQ2LpA"; 
 
     // Set up standard system variables dynamically
     const now = new Date();
@@ -41,16 +36,14 @@ About me:
 - Contact: malana.lenhard.02152003@gmail.com
 Style: warm, professional, concise. Keep answers short (2–4 sentences).`;
 
-    // Map your UI messages cleanly into the format the native Gemini model expects
     const coreMessages = messages.map((m) => ({
       role: m.role === "user" ? ("user" as const) : ("assistant" as const),
       content: m.content,
     }));
 
-    // Invoke the official native Google SDK provider
     const result = streamText({
       model: google("gemini-1.5-flash", {
-        apiKey: apiKey, // Passes the key directly into the provider model context instance
+        apiKey: apiKey, 
       }),
       system: systemPrompt,
       messages: coreMessages,
