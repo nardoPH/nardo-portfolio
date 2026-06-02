@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useChat } from "@ai-sdk/react";
 import { useEffect, useRef } from "react";
 import { Send, User, Bot, Loader2 } from "lucide-react";
-import { getChatStreamResponse } from "./api/-chat"; // Note the clean local hyphen import path
+import { getChatStreamResponse } from "./api/-chat"; // Imported securely from our ignored file route location
 
 export const Route = createFileRoute("/chat")({
   component: ChatComponent,
@@ -10,18 +10,18 @@ export const Route = createFileRoute("/chat")({
 
 function ChatComponent() {
   const { messages, input, handleInputChange, handleSubmit, isLoading, error } = useChat({
-    // Custom intercept handler to stream processing entirely inside the client sandbox
+    // Intercepts and hooks directly into the local stream process container
     fetch: async (url, options) => {
       try {
         const body = JSON.parse(options?.body as string);
         const streamResult = await getChatStreamResponse(body.messages);
         
-        // Return standard raw stream response configuration directly back to useChat
+        // Formats and hands the direct stream stream data back cleanly to the useChat hook
         return streamResult.toDataStreamResponse();
       } catch (err: any) {
-        console.error("Direct execution failure:", err);
+        console.error("Local client execution failed:", err);
         return new Response(
-          JSON.stringify({ error: err?.message || "Failed to process chat pipeline locally" }), 
+          JSON.stringify({ error: err?.message || "Internal streaming compilation error" }), 
           { status: 500, headers: { "Content-Type": "application/json" } }
         );
       }
@@ -46,7 +46,7 @@ function ChatComponent() {
           <div className="text-center text-muted-foreground py-12">
             <p className="text-lg font-medium">Hello! I am NARDO.</p>
             <p className="text-sm max-w-sm mx-auto mt-1">
-              Ask me anything about Lenhard's UX/UI projects, tech stack, or how to collaborate on design work!
+              Ask me anything about Lenhard's UX/UI projects, design systems, or how to collaborate on branding!
             </p>
           </div>
         )}
@@ -79,7 +79,7 @@ function ChatComponent() {
 
         {error && (
           <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm">
-            Something went wrong connecting to the assistant. Please verify your VITE_GEMINI_API_KEY setup inside your hosting environment controls.
+            Failed to process chat pipeline. Please double check that your VITE_GEMINI_API_KEY environment variable is configured in your build dashboard.
           </div>
         )}
         <div ref={messagesEndRef} />
@@ -89,7 +89,7 @@ function ChatComponent() {
         <input
           value={input}
           onChange={handleInputChange}
-          placeholder="Ask about design services, branding, projects..."
+          placeholder="Ask about design systems, active projects, or contact methods..."
           className="flex-1 min-w-0 px-4 py-2 text-sm bg-background border rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-input"
           disabled={isLoading}
         />
