@@ -3,12 +3,13 @@
   "private": true, 
   "sideEffects": false,
   "type": "module",
- "scripts": {
+  "scripts": {
     "dev": "vite dev",
-    "build": "bun x vite build --minify esbuild",
+    "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint ."
   },
+
 
 
 
