@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { convertToModelMessages, streamText, type UIMessage } from "ai";
+import { convertToModelMessages, streamText, createDataStreamResponse, type UIMessage } from "ai";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 
 function buildSystemPrompt() {
@@ -38,46 +38,44 @@ export const Route = createFileRoute("/api/chat")({
   server: {
     handlers: {
       POST: async ({ request, context }) => {
-        try {
-          const body = (await request.json()) as { messages?: UIMessage[] };
-          const messages = body.messages;
-          if (!Array.isArray(messages) || messages.length === 0) {
-            return new Response("Invalid messages", { status: 400 });
-          }
+        // Use createDataStreamResponse to guarantee the frontend useChat hook can read the chunks
+        return createDataStreamResponse({
+          execute: async (dataStream) => {
+            try {
+              const body = (await request.json()) as { messages?: UIMessage[] };
+              const messages = body.messages;
+              if (!Array.isArray(messages) || messages.length === 0) {
+                throw new Error("Invalid or empty messages array");
+              }
 
-          // Gather variables from any potential Cloudflare/Tanstack context source
-          const env = (context as any)?.env || (request as any).env || (globalThis as any).env || {};
-          const apiKey = env.OPENAI_API_KEY || env.GEMINI_API_KEY || process.env.OPENAI_API_KEY;
+              // Gather variables securely from Cloudflare Worker context bindings
+              const env = (context as any)?.env || (request as any).env || (globalThis as any).env || {};
+              const apiKey = env.OPENAI_API_KEY || env.GEMINI_API_KEY || process.env.OPENAI_API_KEY;
 
-          if (!apiKey) {
-            return new Response("Missing API Credentials", { status: 500 });
-          }
+              if (!apiKey) {
+                throw new Error("Missing API Credentials in environment context");
+              }
 
-          const gateway = createOpenAICompatible({
-            name: "gemini",
-            baseURL: "https://generativelanguage.googleapis.com/v1beta/openai",
-            apiKey: apiKey,
-          });
-          
-          const result = streamText({
-            model: gateway("gemini-1.5-flash"),
-            system: buildSystemPrompt(),
-            messages: await convertToModelMessages(messages),
-          });
+              const gateway = createOpenAICompatible({
+                name: "gemini",
+                baseURL: "https://generativelanguage.googleapis.com/v1beta/openai",
+                apiKey: apiKey,
+              });
 
-          // Standard web-native stream piping that Cloudflare Workers handle perfectly
-          const stream = result.toAIStream();
+              const result = streamText({
+                model: gateway("gemini-1.5-flash"),
+                system: buildSystemPrompt(),
+                messages: await convertToModelMessages(messages),
+              });
 
-          return new Response(stream, {
-            headers: {
-              "Content-Type": "text/plain; charset=utf-8",
-              "Transfer-Encoding": "chunked",
-            },
-          });
-        } catch (err) {
-          console.error("[api/chat] Error:", err);
-          return new Response("Server error handling stream", { status: 500 });
-        }
+              // Safely pipe the execution stream directly through Cloudflare's runtime matrix
+              result.mergeIntoDataStream(dataStream);
+            } catch (err) {
+              console.error("[api/chat] Stream block initialization crash:", err);
+              dataStream.writeError(err instanceof Error ? err.message : "Internal Server Error");
+            }
+          },
+        });
       },
     },
   },
