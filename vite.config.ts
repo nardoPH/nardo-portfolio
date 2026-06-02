@@ -1,9 +1,12 @@
 import { defineConfig } from 'vite';
-import lovableConfigPkg from '@lovable.dev/vite-tanstack-config';
-
-// Extract the configuration safely using the default package export
-const lovableConfig = lovableConfigPkg.tanstackBuildConfig || lovableConfigPkg;
+import react from '@vitejs/plugin-react';
+import { cloudflare } from '@cloudflare/vite-plugin';
+import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
-  ...lovableConfig,
+  plugins: [
+    tsconfigPaths(),
+    react(),
+    cloudflare(),
+  ],
 });
