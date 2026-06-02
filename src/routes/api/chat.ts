@@ -39,17 +39,21 @@ export const Route = createFileRoute("/api/chat")({
     handlers: {
       POST: async ({ request, context }) => {
         try {
-          const body = (await request.json()) as { messages?: UIMessage[] };
-          const messages = body.messages;
+          // Safe clone strategy ensures the body stream is never locked out by TanStack's middleware
+          const clonedRequest = request.clone();
+          const body = (await clonedRequest.json()) as { messages?: UIMessage[] };
+          
+          const messages = body?.messages;
           if (!Array.isArray(messages) || messages.length === 0) {
-            return new Response("Invalid messages", { status: 400 });
+            return new Response("Invalid or empty messages array", { status: 400 });
           }
 
-          // Secure environment retrieval across Cloudflare context variations
-          const env = (context as any)?.env || (request as any).env || (globalThis as any).env || {};
-          const apiKey = env.OPENAI_API_KEY || env.GEMINI_API_KEY || process.env.OPENAI_API_KEY;
+          // Bulletproof environmental lookup covering Cloudflare Workers, Pages, and local Node environments
+          const env = (context as any)?.env || (request as any).env || (globalThis as any).env || process?.env || {};
+          const apiKey = env.GEMINI_API_KEY || env.OPENAI_API_KEY || (globalThis as any).GEMINI_API_KEY || process?.env?.GEMINI_API_KEY;
 
           if (!apiKey) {
+            console.error("[api/chat] Configuration Error: No API key found in runtime environment variables.");
             return new Response("Missing API Credentials", { status: 500 });
           }
 
@@ -65,12 +69,11 @@ export const Route = createFileRoute("/api/chat")({
             messages: await convertToModelMessages(messages),
           });
 
-          // This formats the stream correctly so your frontend useChat hook catches it instantly
           return result.toDataStreamResponse();
           
         } catch (err) {
-          console.error("[api/chat] Error:", err);
-          return new Response("Server error handling stream", { status: 500 });
+          console.error("[api/chat] Runtime Error:", err);
+          return new Response("Server encountered an error processing stream request", { status: 500 });
         }
       },
     },
